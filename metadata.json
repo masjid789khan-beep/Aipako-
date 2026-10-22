@@ -1,0 +1,11 @@
+{
+  "name": "AIPAKO AI",
+  "description": "Your Smart World, Powered by AI. Complete Personal AI Assistant with Voice, Smart Chat, Writing Studio, Productivity, and Android Phone Tools.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
