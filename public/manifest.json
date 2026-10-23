@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "AIPAKO AI — Personal Assistant",
+  "short_name": "AIPAKO",
+  "description": "Your Smart World, Powered by AI. Complete Personal AI Assistant with Voice, Smart Chat, Writing Studio, Productivity, and Android Phone Tools.",
+  "start_url": "/?autostart=1",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070B14",
+  "theme_color": "#070B14",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

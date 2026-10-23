@@ -428,9 +428,25 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                 <span>Production Kotlin & Jetpack Compose Codebase</span>
               </h3>
               <p className="text-[11px] text-slate-400">
-                Ready-to-compile Android project files for Android Studio Hedgehog / Ladybug & Gradle.
+                Ready-to-compile Android project files for Android Studio & Gradle.
               </p>
             </div>
+          </div>
+
+          {/* Quick ZIP download & build banner */}
+          <div className="p-3.5 rounded-2xl bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-between gap-3">
+            <div>
+              <span className="text-xs font-bold text-white block">Full Android Studio Archive (.ZIP)</span>
+              <span className="text-[11px] text-slate-300">Includes Gradle, Kotlin, AndroidManifest, and Web assets</span>
+            </div>
+            <a
+              href="/api/download/android-project"
+              download="aipako-android-project.zip"
+              className="py-2 px-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-md transition-all shrink-0"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download .ZIP</span>
+            </a>
           </div>
 
           {/* Snippet 1: MainActivity.kt */}

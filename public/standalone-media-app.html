@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuminaStream — डार्क मोड वीडियो व मीडिया हब</title>
+  <style>
+    /* ==========================================================================
+       CSS STYLES — आकर्षक मॉडर्न डार्क यूआई (Glassmorphic Dark UI)
+       बिना किसी बाहरी लाइब्रेरी (No Tailwind, No Bootstrap, No FontAwesome needed)
+       ========================================================================== */
+    :root {
+      --bg-base: #070a12;
+      --bg-surface: #0f172a;
+      --bg-surface-elevated: #1e293b;
+      --bg-glass: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(56, 189, 248, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-emerald: #10b981;
+      --accent-red: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --shadow-glow: 0 0 25px rgba(6, 182, 212, 0.25);
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Ambient Background Glow */
+    .bg-ambient {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: var(--radius-full);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Layout Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 0;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .logo-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #fff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-sub {
+      font-size: 0.72rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stats-pill {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    @media (min-width: 768px) {
+      .stats-pill {
+        display: flex;
+      }
+    }
+
+    .stats-pill strong {
+      color: var(--accent-cyan);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.45);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-icon {
+      padding: 8px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+    .btn-icon:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ==========================================================================
+       HERO & SEARCH SECTION
+       ========================================================================== */
+    .hero-section {
+      padding: 40px 0 24px;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 30px;
+      font-size: 0.95rem;
+    }
+
+    /* Search & Filter Bar */
+    .controls-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .search-icon {
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      margin-right: 12px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.95rem;
+      padding: 8px 0;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .clear-search-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: none;
+      padding: 4px;
+    }
+    .clear-search-btn:hover {
+      color: #fff;
+    }
+
+    /* Category Pills */
+    .categories-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+      justify-content: flex-start;
+    }
+
+    @media (min-width: 640px) {
+      .categories-bar {
+        justify-content: center;
+      }
+    }
+
+    .categories-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-chip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .category-chip:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .category-chip.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+      color: #38bdf8;
+      border-color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       MEDIA / VIDEO CARD GRID
+       ========================================================================== */
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 28px 0 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .results-count {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .results-count span {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .sort-select {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .sort-select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+      margin-bottom: 60px;
+    }
+
+    /* Single Card */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-hover);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Card Thumbnail Container */
+    .card-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #020617;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .card-thumb video,
+    .card-thumb img,
+    .card-thumb canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .card-thumb video,
+    .card:hover .card-thumb img,
+    .card:hover .card-thumb canvas {
+      transform: scale(1.05);
+    }
+
+    .thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .card:hover .thumb-overlay {
+      opacity: 1;
+    }
+
+    .play-btn-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: rgba(6, 182, 212, 0.9);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      transform: scale(0.9);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover .play-btn-circle {
+      transform: scale(1);
+    }
+
+    .badge-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+    }
+
+    .badge-category {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(4px);
+      color: var(--accent-cyan);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Card Details */
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .creator-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .creator-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .creator-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-date {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .card-title:hover {
+      color: var(--accent-cyan);
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Card Footer / Actions */
+    .card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stats-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      padding: 5px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .action-btn.liked {
+      color: var(--accent-pink);
+    }
+
+    .action-btn.delete-btn:hover {
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+    }
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      color: var(--text-dim);
+    }
+    .empty-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .empty-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+    }
+
+    /* ==========================================================================
+       MODAL STYLING (UPLOAD & VIDEO PLAYER)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-dialog {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      transform: scale(0.95);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.active .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-dialog.modal-player {
+      max-width: 860px;
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg-surface);
+      z-index: 2;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      background: #090e1a;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Drag & Drop Upload Zone */
+    .drop-zone {
+      border: 2px dashed rgba(56, 189, 248, 0.3);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      background: rgba(6, 182, 212, 0.03);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .drop-zone-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+
+    .drop-zone-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .drop-zone-hint {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .preview-container {
+      margin-top: 12px;
+      display: none;
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      max-height: 180px;
+      background: #000;
+    }
+
+    .preview-media {
+      width: 100%;
+      height: 100%;
+      max-height: 180px;
+      object-fit: cover;
+    }
+
+    .remove-preview-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: none;
+      padding: 4px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+    }
+
+    /* Player Specific */
+    .player-video-wrap {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .player-video-wrap video,
+    .player-video-wrap iframe,
+    .player-video-wrap canvas,
+    .player-video-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .player-info-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .player-info-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideInRight 0.3s ease forwards;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 24px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Ambient Glow Effect -->
+  <div class="bg-ambient"></div>
+
+  <!-- ==========================================================================
+       HEADER
+       ========================================================================== -->
+  <header>
+    <div class="container header-content">
+      <div class="logo-area" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <div class="logo-badge">
+          <!-- Play / Stream SVG Icon -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </div>
+        <div>
+          <span class="logo-title">LuminaStream</span>
+          <span class="logo-sub">सेल्फ-कॉन्टेन मीडिया हब</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="stats-pill">
+          <span>कुल कार्ड: <strong id="headerTotalCount">0</strong></span>
+          <span>•</span>
+          <span>पसंदीदा: <strong id="headerLikedCount">0</strong></span>
+        </div>
+
+        <button class="btn btn-primary" onclick="openUploadModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          नया कार्ड अपलोड करें
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN CONTENT
+       ========================================================================== -->
+  <main class="container">
+    
+    <!-- Hero & Search -->
+    <section class="hero-section">
+      <h1 class="hero-title">
+        खोजें और साझा करें <span>प्रीमियम मीडिया</span>
+      </h1>
+      <p class="hero-desc">
+        100% सेल्फ-कॉन्टेन सिंगल-फाइल वेब एप्लिकेशन। वीडियो, कार्ड्स, रियल-टाइम सर्च और डायनेमिक अपलोड के साथ बिना किसी बाहरी निर्भरता के तैयार।
+      </p>
+
+      <div class="controls-wrapper">
+        <!-- Search Bar -->
+        <div class="search-box">
+          <div class="search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="शीर्षक, टैग या क्रिएटर के नाम से खोजें..." 
+            oninput="handleSearch(this.value)"
+          />
+          <button id="clearSearchBtn" class="clear-search-btn" onclick="clearSearch()" title="खोज साफ़ करें">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="categories-bar" id="categoryContainer">
+          <!-- Filled by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid Header / Meta -->
+    <div class="content-header">
+      <div class="results-count" id="resultsCount">
+        कार्ड्स प्रदर्शित: <span>0</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <select id="sortSelect" class="sort-select" onchange="handleSortChange(this.value)">
+          <option value="newest">नवीनतम (Newest)</option>
+          <option value="popular">सर्वाधिक लोकप्रिय (Most Liked)</option>
+          <option value="views">सर्वाधिक देखे गए (Most Views)</option>
+          <option value="alpha">वर्णमाला अनुसार (A to Z)</option>
+        </select>
+        <button class="btn-icon" onclick="resetToDemoData()" title="डेटा रीसेट करें">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Media Cards Grid -->
+    <div class="grid-container" id="cardsGrid">
+      <!-- Dynamic Cards rendered here -->
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       UPLOAD / ADD CARD MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="uploadModal" onclick="handleBackdropClick(event, 'uploadModal')">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">नया मीडिया कार्ड जोड़ें</h3>
+        <button class="modal-close-btn" onclick="closeUploadModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="uploadForm" onsubmit="handleFormSubmit(event)">
+          
+          <div class="form-group">
+            <label class="form-label">कार्ड शीर्षक *</label>
+            <input type="text" id="cardTitle" class="form-input" placeholder="उदा. Next.js 15 और AI का भविष्य" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">कैटेगरी *</label>
+              <select id="cardCategory" class="form-select">
+                <option value="टेक और एआई">टेक और एआई</option>
+                <option value="डिजाइन और यूआई">डिजाइन और यूआई</option>
+                <option value="ट्यूटोरियल">ट्यूटोरियल</option>
+                <option value="क्रिएटिव आर्ट">क्रिएटिव आर्ट</option>
+                <option value="प्रोडक्टिविटी">प्रोडक्टिविटी</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">अवधि / लेबल</label>
+              <input type="text" id="cardDuration" class="form-input" placeholder="उदा. 04:30 या 4K" value="05:12" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">क्रिएटर का नाम</label>
+              <input type="text" id="cardCreator" class="form-input" placeholder="आपका नाम" value="Lumina Creator" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">कस्टम टैग (अल्पविराम से अलग)</label>
+              <input type="text" id="cardTags" class="form-input" placeholder="AI, UI, Web" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">विवरण (Description)</label>
+            <textarea id="cardDesc" class="form-textarea" placeholder="इस वीडियो या कार्ड के बारे में कुछ पंक्तियां लिखें..."></textarea>
+          </div>
+
+          <!-- File Upload or URL -->
+          <div class="form-group">
+            <label class="form-label">मीडिया फ़ाइल अपलोड करें या डेमो एनिमेशन चुनें</label>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(event)">
+              <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="drop-zone-text">फ़ाइल चुनने के लिए क्लिक करें या यहाँ ड्रैग करें</div>
+              <div class="drop-zone-hint">MP4, WEBM, PNG, JPG समर्थित (लोकल डिवाइस से तुरंत लाइव)</div>
+            </div>
+
+            <!-- Preview box -->
+            <div class="preview-container" id="previewContainer">
+              <img id="imagePreview" class="preview-media" style="display: none;" />
+              <video id="videoPreview" class="preview-media" controls style="display: none;"></video>
+              <button type="button" class="remove-preview-btn" onclick="clearUploadedFile()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+            <button type="button" class="btn btn-outline" onclick="closeUploadModal()">रद्द करें</button>
+            <button type="submit" class="btn btn-primary">प्रकाशित करें</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MEDIA / VIDEO PLAYER MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="playerModal" onclick="handleBackdropClick(event, 'playerModal')">
+    <div class="modal-dialog modal-player">
+      <div class="modal-header">
+        <span class="badge-category" id="modalPlayerCat" style="position: static;">श्रेणी</span>
+        <button class="modal-close-btn" onclick="closePlayerModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top: 16px;">
+        <div class="player-video-wrap" id="modalPlayerMediaWrap">
+          <!-- Filled dynamically: video or interactive canvas -->
+        </div>
+
+        <h2 class="player-info-title" id="modalPlayerTitle">शीर्षक</h2>
+        
+        <div class="player-info-meta">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="creator-avatar" id="modalPlayerAvatar">A</div>
+            <div>
+              <div style="font-weight: 600; font-size: 0.88rem;" id="modalPlayerCreator">क्रिएटर</div>
+              <div style="font-size: 0.72rem; color: var(--text-dim);" id="modalPlayerDate">दिनांक</div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 0.82rem; color: var(--text-muted);" id="modalPlayerViews">0 दृश्य</span>
+            <button class="btn btn-outline" id="modalPlayerLikeBtn" style="padding: 7px 14px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span id="modalPlayerLikes">0</span>
+            </button>
+          </div>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;" id="modalPlayerDesc">
+          विवरण...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      LuminaStream &copy; 2026 — 100% सेल्फ-कॉन्टेन सिंगल-फाइल वेब एप्लिकेशन। किसी बाहरी CDN या पैकेज की आवश्यकता नहीं।
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT — पूर्ण फंक्शनल और डायनेमिक लॉजिक (Pure Vanilla JS)
+       ========================================================================== -->
+  <script>
+    // --- प्रारंभिक डेमो डेटा (Default Data with Generative Interactive Canvas Visuals) ---
+    const INITIAL_CARDS = [
+      {
+        id: 'card-1',
+        title: 'आर्टिफिशियल इंटेलिजेंस और न्यूरल नेटवर्क का भविष्य',
+        category: 'टेक और एआई',
+        creator: 'रोहित वर्मा',
+        duration: '08:45',
+        views: 14200,
+        likes: 1240,
+        liked: true,
+        date: '2 घंटे पहले',
+        desc: 'इस सेशन में हम देखेंगे कि कैसे मॉडर्न लार्ज लैंग्वेज मॉडल्स और न्यूरल नेटवर्क आगामी दशकों में सॉफ़्टवेयर डेवलपमेंट की दुनिया को बदल रहे हैं।',
+        tags: ['AI', 'NeuralNet', 'Future'],
+        theme: 'cyber'
+      },
+      {
+        id: 'card-2',
+        title: 'ग्लासमोर्फिज्म और डार्क यूआई डिज़ाइन मास्टरक्लास',
+        category: 'डिजाइन और यूआई',
+        creator: 'अनामिका शर्मा',
+        duration: '12:20',
+        views: 8900,
+        likes: 980,
+        liked: false,
+        date: '1 दिन पहले',
+        desc: 'आधुनिक वेब ऐप्स के लिए परिष्कृत डार्क थीम, ट्रांसलूसेंट लेयर्स, और जीवंत ग्रेडिएंट शैडो बनाने की व्यावहारिक मार्गदर्शिका।',
+        tags: ['Design', 'UIUX', 'CSS'],
+        theme: 'neon'
+      },
+      {
+        id: 'card-3',
+        title: 'वेनिला जावास्क्रिप्ट में सिंगल-फाइल ऐप आर्किटेक्चर',
+        category: 'ट्यूटोरियल',
+        creator: 'अमित पटेल',
+        duration: '15:10',
+        views: 22400,
+        likes: 2150,
+        liked: false,
+        date: '3 दिन पहले',
+        desc: 'बिना किसी बाहरी फ्रेमवर्क के फास्ट, रिस्पॉन्सिव और सेल्फ-कॉन्टेन वेब टूल्स बनाने का संपूर्ण रोडमैप।',
+        tags: ['JavaScript', 'WebDev', 'Tutorial'],
+        theme: 'matrix'
+      },
+      {
+        id: 'card-4',
+        title: 'एल्गोरिदम और जेनरेटिव विजुअल्स का जादू',
+        category: 'क्रिएटिव आर्ट',
+        creator: 'सोनिया मेहता',
+        duration: '06:30',
+        views: 6300,
+        likes: 540,
+        liked: false,
+        date: '5 दिन पहले',
+        desc: 'गणितीय समीकरणों और कैनवास कोड से जीवंत पार्टिकल्स और रंगीन ज्यामितीय कलाकृतियों का निर्माण।',
+        tags: ['Art', 'Canvas', 'Generative'],
+        theme: 'aurora'
+      },
+      {
+        id: 'card-5',
+        title: 'दैनिक उत्पादकता और डीप वर्क के 5 अचूक नियम',
+        category: 'प्रोडक्टिविटी',
+        creator: 'विक्रम सिंह',
+        duration: '09:15',
+        views: 11800,
+        likes: 1320,
+        liked: true,
+        date: '1 सप्ताह पहले',
+        desc: 'काम के दौरान विचलित हुए बिना उच्चतम फोकस प्राप्त करने की वैज्ञानिक तकनीकें और रूटीन।',
+        tags: ['Focus', 'Habits', 'Productivity'],
+        theme: 'sunset'
+      }
+    ];
+
+    const CATEGORIES = ['सभी', 'टेक और एआई', 'डिजाइन और यूआई', 'ट्यूटोरियल', 'क्रिएटिव आर्ट', 'प्रोडक्टिविटी', 'पसंदीदा'];
+
+    // State Variables
+    let cards = [];
+    let activeCategory = 'सभी';
+    let searchQuery = '';
+    let sortOrder = 'newest';
+    let uploadedFileBlob = null;
+    let uploadedFileType = null;
+
+    // --- LocalStorage प्रबंधन ---
+    function loadCardsFromStorage() {
+      try {
+        const stored = localStorage.getItem('lumina_stream_cards');
+        if (stored) {
+          cards = JSON.parse(stored);
+        } else {
+          cards = [...INITIAL_CARDS];
+          saveCardsToStorage();
+        }
+      } catch (e) {
+        cards = [...INITIAL_CARDS];
+      }
+    }
+
+    function saveCardsToStorage() {
+      try {
+        localStorage.setItem('lumina_stream_cards', JSON.stringify(cards));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+    }
+
+    function resetToDemoData() {
+      if (confirm('क्या आप सभी कार्ड्स को प्रारंभिक डेमो डेटा पर रीसेट करना चाहते हैं?')) {
+        cards = [...INITIAL_CARDS];
+        saveCardsToStorage();
+        renderCards();
+        updateStats();
+        showToast('डेमो डेटा सफलतापूर्वक रीसेट कर दिया गया!');
+      }
+    }
+
+    // --- इनिशियलाइजेशन ---
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCardsFromStorage();
+      renderCategories();
+      renderCards();
+      updateStats();
+      setupDragAndDrop();
+    });
+
+    // --- कैटेगरीज रेंडरिंग ---
+    function renderCategories() {
+      const container = document.getElementById('categoryContainer');
+      container.innerHTML = CATEGORIES.map(cat => `
+        <button 
+          class="category-chip ${cat === activeCategory ? 'active' : ''}" 
+          onclick="selectCategory('${cat}')"
+        >
+          ${cat === 'पसंदीदा' ? '❤️ ' : ''}${cat}
+        </button>
+      `).join('');
+    }
+
+    function selectCategory(cat) {
+      activeCategory = cat;
+      renderCategories();
+      renderCards();
+    }
+
+    // --- खोज और फ़िल्टर लॉजिक ---
+    function handleSearch(query) {
+      searchQuery = query.trim().toLowerCase();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      clearBtn.style.display = searchQuery ? 'block' : 'none';
+      renderCards();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      searchQuery = '';
+      document.getElementById('clearSearchBtn').style.display = 'none';
+      renderCards();
+    }
+
+    function handleSortChange(sortVal) {
+      sortOrder = sortVal;
+      renderCards();
+    }
+
+    // --- फ़िल्टर्ड कार्ड्स प्राप्त करना ---
+    function getFilteredCards() {
+      return cards.filter(card => {
+        // Category Filter
+        if (activeCategory === 'पसंदीदा') {
+          if (!card.liked) return false;
+        } else if (activeCategory !== 'सभी') {
+          if (card.category !== activeCategory) return false;
+        }
+
+        // Search Query Filter (Title, tags, or creator)
+        if (searchQuery) {
+          const inTitle = card.title.toLowerCase().includes(searchQuery);
+          const inDesc = card.desc.toLowerCase().includes(searchQuery);
+          const inCreator = card.creator.toLowerCase().includes(searchQuery);
+          const inTags = card.tags && card.tags.some(t => t.toLowerCase().includes(searchQuery));
+          if (!inTitle && !inDesc && !inCreator && !inTags) return false;
+        }
+
+        return true;
+      }).sort((a, b) => {
+        if (sortOrder === 'popular') return b.likes - a.likes;
+        if (sortOrder === 'views') return b.views - a.views;
+        if (sortOrder === 'alpha') return a.title.localeCompare(b.title);
+        return 0; // Newest / Default preservation
+      });
+    }
+
+    // --- कैनवास जनरेटिव थंबनेल जेनरेटर (Without External Images) ---
+    function drawGenerativeThumbnail(canvasId, theme, title) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Themes gradient selection
+      let grad = ctx.createLinearGradient(0, 0, w, h);
+      if (theme === 'cyber') {
+        grad.addColorStop(0, '#020617');
+        grad.addColorStop(0.5, '#083344');
+        grad.addColorStop(1, '#0f172a');
+      } else if (theme === 'neon') {
+        grad.addColorStop(0, '#170624');
+        grad.addColorStop(0.5, '#4a044e');
+        grad.addColorStop(1, '#0f172a');
+      } else if (theme === 'matrix') {
+        grad.addColorStop(0, '#022c22');
+        grad.addColorStop(0.5, '#064e3b');
+        grad.addColorStop(1, '#020617');
+      } else if (theme === 'sunset') {
+        grad.addColorStop(0, '#31102b');
+        grad.addColorStop(0.5, '#701a75');
+        grad.addColorStop(1, '#1e1b4b');
+      } else {
+        grad.addColorStop(0, '#030712');
+        grad.addColorStop(0.5, '#1e1b4b');
+        grad.addColorStop(1, '#0f172a');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Geometric dynamic shapes
+      ctx.save();
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        const rx = (Math.sin(i * 99 + 1) * 0.5 + 0.5) * w;
+        const ry = (Math.cos(i * 43 + 2) * 0.5 + 0.5) * h;
+        const radius = 30 + i * 25;
+        const radGrad = ctx.createRadialGradient(rx, ry, 5, rx, ry, radius);
+        radGrad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+        radGrad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+        ctx.fillStyle = radGrad;
+        ctx.arc(rx, ry, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Cyber grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Title overlay badge
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(14, h - 38, w - 28, 26);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 12px ' + getComputedStyle(document.body).fontFamily;
+      ctx.fillText(title.substring(0, 26) + (title.length > 26 ? '...' : ''), 22, h - 21);
+    }
+
+    // --- कार्ड्स रेंडर करना ---
+    function renderCards() {
+      const grid = document.getElementById('cardsGrid');
+      const filtered = getFilteredCards();
+
+      // Results Count
+      document.getElementById('resultsCount').innerHTML = `कार्ड्स प्रदर्शित: <span>${filtered.length}</span>`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <div class="empty-title">कोई कार्ड नहीं मिला</div>
+            <div class="empty-desc">आपकी खोज या चुने गए फ़िल्टर के अनुकूल कोई परिणाम नहीं हैं।</div>
+            <button class="btn btn-primary" onclick="clearSearch(); selectCategory('सभी');">सभी कार्ड्स देखें</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((card, idx) => {
+        const initial = (card.creator || 'U')[0].toUpperCase();
+        const canvasId = `thumbCanvas_${card.id}`;
+        
+        return `
+          <div class="card" id="cardEl_${card.id}">
+            <!-- Media Thumbnail -->
+            <div class="card-thumb" onclick="openPlayerModal('${card.id}')">
+              ${card.mediaUrl ? (
+                card.mediaType === 'video' ? `
+                  <video src="${card.mediaUrl}" preload="metadata"></video>
+                ` : `
+                  <img src="${card.mediaUrl}" alt="${card.title}" />
+                `
+              ) : `
+                <canvas id="${canvasId}" width="320" height="180"></canvas>
+              `}
+              
+              <div class="thumb-overlay">
+                <div class="play-btn-circle">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </div>
+              </div>
+
+              <span class="badge-category">${card.category}</span>
+              <span class="badge-duration">${card.duration || 'HD'}</span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="creator-avatar">${initial}</div>
+                <div class="creator-info">
+                  <div class="creator-name">${card.creator || 'Lumina'}</div>
+                  <div class="card-date">${card.date || 'हाल ही में'}</div>
+                </div>
+              </div>
+
+              <div class="card-title" onclick="openPlayerModal('${card.id}')">
+                ${escapeHtml(card.title)}
+              </div>
+
+              <div class="card-desc">
+                ${escapeHtml(card.desc || 'कोई विवरण उपलब्ध नहीं।')}
+              </div>
+
+              <!-- Footer with views, like & delete actions -->
+              <div class="card-footer">
+                <div class="stats-group">
+                  <div class="stat-item" title="दृश्य संख्या">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>${formatNumber(card.views || 0)}</span>
+                  </div>
+                </div>
+
+                <div class="card-actions">
+                  <button 
+                    class="action-btn ${card.liked ? 'liked' : ''}" 
+                    onclick="toggleLike('${card.id}')" 
+                    title="${card.liked ? 'पसंद हटाएं' : 'पसंद करें'}"
+                  >
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="${card.liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                  </button>
+
+                  <button 
+                    class="action-btn delete-btn" 
+                    onclick="deleteCard('${card.id}')" 
+                    title="कार्ड हटाएं"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Draw generative canvases for cards without custom media
+      filtered.forEach(card => {
+        if (!card.mediaUrl) {
+          drawGenerativeThumbnail(`thumbCanvas_${card.id}`, card.theme || 'cyber', card.title);
+        }
+      });
+    }
+
+    // --- सांख्यिकी अपडेट (Stats) ---
+    function updateStats() {
+      const total = cards.length;
+      const liked = cards.filter(c => c.liked).length;
+      document.getElementById('headerTotalCount').textContent = total;
+      document.getElementById('headerLikedCount').textContent = liked;
+    }
+
+    // --- लाइक टॉगल (Like Toggle) ---
+    function toggleLike(cardId) {
+      const card = cards.find(c => c.id === cardId);
+      if (!card) return;
+      card.liked = !card.liked;
+      card.likes = (card.likes || 0) + (card.liked ? 1 : -1);
+      saveCardsToStorage();
+      renderCards();
+      updateStats();
+      showToast(card.liked ? 'पसंदीदा में जोड़ा गया!' : 'पसंदीदा से हटाया गया');
+    }
+
+    // --- कार्ड हटाना (Delete Card) ---
+    function deleteCard(cardId) {
+      if (confirm('क्या आप वाकई इस कार्ड को हटाना चाहते हैं?')) {
+        cards = cards.filter(c => c.id !== cardId);
+        saveCardsToStorage();
+        renderCards();
+        updateStats();
+        showToast('कार्ड सफलतापूर्वक हटाया गया');
+      }
+    }
+
+    // --- अपलोड मोडल और ड्रैग-एंड-ड्रॉप ---
+    function openUploadModal() {
+      document.getElementById('uploadForm').reset();
+      clearUploadedFile();
+      document.getElementById('uploadModal').classList.add('active');
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('active');
+    }
+
+    function handleBackdropClick(event, modalId) {
+      if (event.target.id === modalId) {
+        document.getElementById(modalId).classList.remove('active');
+        if (modalId === 'playerModal') {
+          // Pause modal video
+          const vid = document.querySelector('#modalPlayerMediaWrap video');
+          if (vid) vid.pause();
+        }
+      }
+    }
+
+    function setupDragAndDrop() {
+      const dropZone = document.getElementById('dropZone');
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropZone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length) {
+          processFile(files[0]);
+        }
+      });
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processFile(file);
+      }
+    }
+
+    function processFile(file) {
+      const previewContainer = document.getElementById('previewContainer');
+      const imgPrev = document.getElementById('imagePreview');
+      const vidPrev = document.getElementById('videoPreview');
+
+      uploadedFileType = file.type.startsWith('video') ? 'video' : 'image';
+      uploadedFileBlob = URL.createObjectURL(file);
+
+      previewContainer.style.display = 'block';
+
+      if (uploadedFileType === 'video') {
+        imgPrev.style.display = 'none';
+        vidPrev.style.display = 'block';
+        vidPrev.src = uploadedFileBlob;
+      } else {
+        vidPrev.style.display = 'none';
+        imgPrev.style.display = 'block';
+        imgPrev.src = uploadedFileBlob;
+      }
+    }
+
+    function clearUploadedFile() {
+      uploadedFileBlob = null;
+      uploadedFileType = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('previewContainer').style.display = 'none';
+      document.getElementById('videoPreview').src = '';
+      document.getElementById('imagePreview').src = '';
+    }
+
+    // --- नया कार्ड फॉर्म सबमिट ---
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('cardTitle').value.trim();
+      const category = document.getElementById('cardCategory').value;
+      const duration = document.getElementById('cardDuration').value.trim() || 'HD';
+      const creator = document.getElementById('cardCreator').value.trim() || 'Lumina Creator';
+      const desc = document.getElementById('cardDesc').value.trim();
+      const tagsRaw = document.getElementById('cardTags').value.trim();
+      const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : ['New', category];
+
+      const themes = ['cyber', 'neon', 'matrix', 'sunset', 'aurora'];
+      const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+
+      const newCard = {
+        id: 'card-' + Date.now(),
+        title: title,
+        category: category,
+        duration: duration,
+        creator: creator,
+        desc: desc || 'उपयोगकर्ता द्वारा हाल ही में प्रकाशित किया गया कार्ड।',
+        views: 1,
+        likes: 0,
+        liked: false,
+        date: 'अभी',
+        tags: tags,
+        theme: randomTheme,
+        mediaUrl: uploadedFileBlob || null,
+        mediaType: uploadedFileType || null
+      };
+
+      cards.unshift(newCard);
+      saveCardsToStorage();
+      closeUploadModal();
+      renderCards();
+      updateStats();
+      showToast('नया कार्ड सफलतापूर्वक प्रकाशित हुआ!');
+      window.scrollTo({ top: 300, behavior: 'smooth' });
+    }
+
+    // --- वीडियो / कार्ड प्लेयर मोडल खोलना ---
+    function openPlayerModal(cardId) {
+      const card = cards.find(c => c.id === cardId);
+      if (!card) return;
+
+      // Increment views
+      card.views = (card.views || 0) + 1;
+      saveCardsToStorage();
+      renderCards();
+
+      document.getElementById('modalPlayerCat').textContent = card.category;
+      document.getElementById('modalPlayerTitle').textContent = card.title;
+      document.getElementById('modalPlayerCreator').textContent = card.creator || 'Lumina';
+      document.getElementById('modalPlayerAvatar').textContent = (card.creator || 'U')[0].toUpperCase();
+      document.getElementById('modalPlayerDate').textContent = card.date || 'हाल ही में';
+      document.getElementById('modalPlayerViews').textContent = `${formatNumber(card.views)} दृश्य`;
+      document.getElementById('modalPlayerLikes').textContent = formatNumber(card.likes || 0);
+      document.getElementById('modalPlayerDesc').textContent = card.desc;
+
+      const likeBtn = document.getElementById('modalPlayerLikeBtn');
+      likeBtn.onclick = () => {
+        toggleLike(card.id);
+        document.getElementById('modalPlayerLikes').textContent = formatNumber(card.likes || 0);
+      };
+
+      // Player Media
+      const wrap = document.getElementById('modalPlayerMediaWrap');
+      wrap.innerHTML = '';
+
+      if (card.mediaUrl && card.mediaType === 'video') {
+        const vid = document.createElement('video');
+        vid.src = card.mediaUrl;
+        vid.controls = true;
+        vid.autoplay = true;
+        wrap.appendChild(vid);
+      } else if (card.mediaUrl && card.mediaType === 'image') {
+        const img = document.createElement('img');
+        img.src = card.mediaUrl;
+        wrap.appendChild(img);
+      } else {
+        // Dynamic interactive generative visual canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 450;
+        canvas.id = 'modalCanvasPlayer';
+        wrap.appendChild(canvas);
+        startInteractiveCanvasAnimation(canvas, card.theme || 'cyber');
+      }
+
+      document.getElementById('playerModal').classList.add('active');
+    }
+
+    function closePlayerModal() {
+      const vid = document.querySelector('#modalPlayerMediaWrap video');
+      if (vid) vid.pause();
+      document.getElementById('playerModal').classList.remove('active');
+    }
+
+    // --- इंटरैक्टिव कैनवास विज़ुअल प्लेयर (जब कोई वीडियो अपलोड न हो) ---
+    let animFrameId = null;
+    function startInteractiveCanvasAnimation(canvas, theme) {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      let frame = 0;
+
+      const particles = Array.from({ length: 45 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        radius: Math.random() * 3 + 2,
+        hue: Math.random() * 60 + (theme === 'neon' ? 280 : theme === 'matrix' ? 140 : 190)
+      }));
+
+      function renderFrame() {
+        if (!document.getElementById('playerModal').classList.contains('active')) return;
+        frame++;
+
+        ctx.fillStyle = 'rgba(7, 10, 18, 0.25)';
+        ctx.fillRect(0, 0, w, h);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${p.hue}, 90%, 65%)`;
+          ctx.fill();
+        });
+
+        // Connecting lines
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist / 100 * 0.8})`;
+              ctx.lineWidth = 0.8;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Center HUD
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 18px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('✨ इंटरैक्टिव जनरेटिव ऑडियो-विजुअल सिमुलेशन ✨', w / 2, h / 2);
+
+        animFrameId = requestAnimationFrame(renderFrame);
+      }
+      renderFrame();
+    }
+
+    // --- उपयोगी सहायक फ़ंक्शंस (Utilities) ---
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

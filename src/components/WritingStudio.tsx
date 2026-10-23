@@ -14,6 +14,7 @@ import {
   Share,
   Sliders,
   CheckCircle2,
+  FileCode,
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/phoneBridge.ts';
 import { Note } from '../types/index.ts';
@@ -25,6 +26,7 @@ interface WritingStudioProps {
 
 const TEMPLATES = [
   { id: 'email', label: 'Email', icon: Mail, desc: 'Professional emails, pitches & follow-ups' },
+  { id: 'html', label: 'HTML / Web', icon: FileCode, desc: 'Responsive HTML5 pages, landing sections & UI' },
   { id: 'message', label: 'Message', icon: MessageSquare, desc: 'Friendly SMS, Slack & chat messages' },
   { id: 'social', label: 'Social Post', icon: Share, desc: 'X/Twitter, LinkedIn & Instagram copy' },
   { id: 'document', label: 'Document', icon: FileText, desc: 'Proposals, executive summaries & reports' },
@@ -180,6 +182,8 @@ export const WritingStudio: React.FC<WritingStudioProps> = ({
             placeholder={
               selectedTemplate === 'email'
                 ? 'E.g., Polite follow-up email to client regarding contract review and schedule for next Tuesday.'
+                : selectedTemplate === 'html'
+                ? 'E.g., Modern responsive landing page hero with call-to-action button, dark mode theme, and features grid in HTML & CSS.'
                 : selectedTemplate === 'rewrite'
                 ? 'Paste the text you want polished, simplified, or adjusted...'
                 : 'E.g., Compelling introduction for a new smart fitness app, highlighting privacy and AI coaching.'
@@ -191,18 +195,32 @@ export const WritingStudio: React.FC<WritingStudioProps> = ({
         {/* Options Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Writing Style</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              {selectedTemplate === 'html' ? 'HTML / CSS Framework' : 'Writing Style'}
+            </label>
             <select
               value={style}
               onChange={(e) => setStyle(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500"
             >
-              <option value="Professional">Professional</option>
-              <option value="Casual & Friendly">Casual & Friendly</option>
-              <option value="Creative & Engaging">Creative & Engaging</option>
-              <option value="Persuasive & Bold">Persuasive & Bold</option>
-              <option value="Academic & Detailed">Academic & Detailed</option>
-              <option value="Concise & Direct">Concise & Direct</option>
+              {selectedTemplate === 'html' ? (
+                <>
+                  <option value="Tailwind CSS CDN">Modern Tailwind CSS (CDN)</option>
+                  <option value="Clean Semantic HTML5 + Embedded CSS">Semantic HTML5 + Embedded CSS</option>
+                  <option value="Dark Futuristic Neon Theme">Dark Futuristic Neon Theme</option>
+                  <option value="Minimalist Clean Light Theme">Minimalist Clean Light Theme</option>
+                  <option value="Single HTML Component / Card">Single HTML Component / Card</option>
+                </>
+              ) : (
+                <>
+                  <option value="Professional">Professional</option>
+                  <option value="Casual & Friendly">Casual & Friendly</option>
+                  <option value="Creative & Engaging">Creative & Engaging</option>
+                  <option value="Persuasive & Bold">Persuasive & Bold</option>
+                  <option value="Academic & Detailed">Academic & Detailed</option>
+                  <option value="Concise & Direct">Concise & Direct</option>
+                </>
+              )}
             </select>
           </div>
 

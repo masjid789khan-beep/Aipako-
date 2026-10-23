@@ -162,7 +162,23 @@ app.post('/api/generate-content', async (req, res) => {
       });
     }
 
-    const prompt = `Act as an expert copywriter and content creator for AIPAKO AI.
+    const isHtml = type === 'html';
+    const prompt = isHtml
+      ? `Act as an expert frontend engineer and web designer for AIPAKO AI.
+Task: Create a complete, responsive, and beautiful HTML page or component.
+Request: ${topic}
+Framework / Style: ${style || 'Tailwind CSS CDN'}
+Target: ${audience || 'Mobile Web'}
+Length: ${length || 'Comprehensive'}
+Language: ${language || 'English'}
+${context ? `Additional Context: ${context}` : ''}
+
+Requirements:
+- Provide a complete, self-contained HTML snippet or page wrapped in a \`\`\`html code block.
+- Include responsive styling (use Tailwind CDN \`<script src="https://cdn.tailwindcss.com"></script>\` or clean embedded \`<style>\`).
+- Make it visual, modern, and interactive if appropriate.
+- Provide a brief introductory description before the code.`
+      : `Act as an expert copywriter and content creator for AIPAKO AI.
 Task: Create high quality ${type || 'content'}.
 Topic / Request: ${topic}
 Style / Tone: ${style || 'Professional and engaging'}
@@ -374,6 +390,17 @@ app.post('/api/tts', async (req, res) => {
       error: err?.message || 'Failed to synthesize speech.',
     });
   }
+});
+
+// Download complete Android Studio project zip package
+app.get('/api/download/android-project', (req, res) => {
+  const zipPath = path.resolve(process.cwd(), 'aipako-android-project.zip');
+  res.download(zipPath, 'aipako-android-project.zip', (err) => {
+    if (err) {
+      console.error('Error sending android project zip:', err);
+      res.status(404).send('File not found');
+    }
+  });
 });
 
 // Development vs Production serving

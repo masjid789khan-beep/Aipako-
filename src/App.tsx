@@ -16,9 +16,10 @@ import { ToolsHub } from './components/ToolsHub.tsx';
 import { ProductivityHub } from './components/ProductivityHub.tsx';
 import { ProfileSettings } from './components/ProfileSettings.tsx';
 import { BottomNavBar } from './components/BottomNavBar.tsx';
+import { ApkDownloadModal } from './components/ApkDownloadModal.tsx';
 import { createNewConversation } from './utils/chatManager.ts';
 import { UserProfile, Conversation, Note, Task, Reminder } from './types/index.ts';
-import { Smartphone, Monitor, ShieldCheck, Sparkles } from 'lucide-react';
+import { Smartphone, Monitor, ShieldCheck, Sparkles, Download } from 'lucide-react';
 
 const DEFAULT_USER: UserProfile = {
   id: 'usr_guest_01',
@@ -90,6 +91,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [showApkModal, setShowApkModal] = useState(false);
   const [isSimulatorActive, setIsSimulatorActive] = useState(false);
 
   // User State
@@ -317,6 +319,16 @@ export default function App() {
 
         {/* Header Right Quick Toggles */}
         <div className="flex items-center space-x-2">
+          {/* APK & Android Installation Button */}
+          <button
+            onClick={() => setShowApkModal(true)}
+            className="px-2.5 py-1 rounded-xl bg-cyan-950/80 border border-cyan-500/40 hover:bg-cyan-900/60 text-xs font-bold text-cyan-300 hover:text-white transition-all flex items-center space-x-1 shadow-sm"
+            title="Download Android APK & Installation Guide"
+          >
+            <Download className="w-3.5 h-3.5 text-cyan-400" />
+            <span>APK</span>
+          </button>
+
           {/* Android Frame Simulator Toggle */}
           <button
             onClick={() => setIsSimulatorActive(!isSimulatorActive)}
@@ -482,6 +494,11 @@ export default function App() {
         }}
         preferredLanguage={user.preferredLanguage}
         voiceName={user.voiceName}
+      />
+
+      <ApkDownloadModal
+        isOpen={showApkModal}
+        onClose={() => setShowApkModal(false)}
       />
     </div>
   );
